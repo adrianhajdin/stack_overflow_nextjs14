@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.23.5",
     "@tailwindcss/typography": "^0.5.10",
     "@types/node": "20.5.9",
     "@types/react": "18.2.21",
