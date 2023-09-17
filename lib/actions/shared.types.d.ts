@@ -87,7 +87,6 @@ export interface EditQuestionParams {
   questionId: string;
   title: string;
   content: string;
-  tags: string[];
   path: string;
 }
 
