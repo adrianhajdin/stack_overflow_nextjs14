@@ -2,6 +2,7 @@ import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilters from "@/components/home/HomeFilters";
 import Filter from "@/components/shared/Filter";
 import NoResult from "@/components/shared/NoResult";
+import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
@@ -12,7 +13,10 @@ import Link from "next/link";
 export default async function Home({ searchParams }: SearchParamsProps) {
   const result = await getQuestions({
     searchQuery: searchParams.q,
+    filter: searchParams.filter,
   });
+
+  // Fetch Recommended Questions
 
   return (
     <>

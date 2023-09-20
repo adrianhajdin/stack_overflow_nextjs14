@@ -8,7 +8,8 @@ import Link from 'next/link'
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const result = await getAllUsers({
-    searchQuery: searchParams.q
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
   })
 
   return (
