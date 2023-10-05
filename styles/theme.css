@@ -43,6 +43,10 @@
     @apply text-dark-100 dark:text-light-900 !important;
   }
 
+  .text-light900_dark100 {
+    @apply text-light-900 dark:text-dark-100;
+  }
+
   .text-dark200_light900 {
     @apply text-dark-200 dark:text-light-900;
   }
