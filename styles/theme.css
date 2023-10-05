@@ -7,6 +7,10 @@
     @apply bg-light-850 dark:bg-dark-100;
   }
 
+  .text-light900_dark100 {
+    @apply text-light-900 dark:text-dark-100;
+  }
+
   .background-light900_dark200 {
     @apply bg-light-900 dark:bg-dark-200;
   }
