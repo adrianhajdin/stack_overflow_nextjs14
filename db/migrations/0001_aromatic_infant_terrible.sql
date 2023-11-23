@@ -1,0 +1,1 @@
+ALTER TABLE `question` ADD `created_at` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL;
