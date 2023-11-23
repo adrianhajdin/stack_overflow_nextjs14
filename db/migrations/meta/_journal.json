@@ -1,0 +1,83 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1699222905124,
+      "tag": "0000_empty_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1699223450581,
+      "tag": "0001_aromatic_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1699223846730,
+      "tag": "0002_overconfident_sunspot",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1699392618552,
+      "tag": "0003_great_juggernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1700409858169,
+      "tag": "0004_little_thunderbolts",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1700410129795,
+      "tag": "0005_many_secret_warriors",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1700502707911,
+      "tag": "0006_familiar_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1700505793753,
+      "tag": "0007_good_puck",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1700506152914,
+      "tag": "0008_spicy_blink",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1700575658766,
+      "tag": "0009_mushy_gravity",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1700778963834,
+      "tag": "0010_glamorous_retro_girl",
+      "breakpoints": true
+    }
+  ]
+}
