@@ -1,9 +1,18 @@
-"use server"
+"use server";
 
 import { FilterQuery } from "mongoose";
 import User from "@/database/user.model";
-import { connectToDatabase } from "../mongoose"
-import { CreateUserParams, DeleteUserParams, GetAllUsersParams, GetSavedQuestionsParams, GetUserByIdParams, GetUserStatsParams, ToggleSaveQuestionParams, UpdateUserParams } from "./shared.types";
+import { connectToDatabase } from "../mongoose";
+import {
+  CreateUserParams,
+  DeleteUserParams,
+  GetAllUsersParams,
+  GetSavedQuestionsParams,
+  GetUserByIdParams,
+  GetUserStatsParams,
+  ToggleSaveQuestionParams,
+  UpdateUserParams,
+} from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
 import Tag from "@/database/tag.model";
@@ -64,8 +73,8 @@ export async function deleteUser(params: DeleteUserParams) {
 
     const user = await User.findOneAndDelete({ clerkId });
 
-    if(!user) {
-      throw new Error('User not found');
+    if (!user) {
+      throw new Error("User not found");
     }
 
     // Delete user from database
@@ -97,26 +106,26 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
     const query: FilterQuery<typeof User> = {};
 
-    if(searchQuery) {
+    if (searchQuery) {
       query.$or = [
-        { name: { $regex: new RegExp(searchQuery, 'i') }},
-        { username: { $regex: new RegExp(searchQuery, 'i') }},
-      ]
+        { name: { $regex: new RegExp(searchQuery, "i") } },
+        { username: { $regex: new RegExp(searchQuery, "i") } },
+      ];
     }
 
     let sortOptions = {};
 
     switch (filter) {
       case "new_users":
-        sortOptions = { joinedAt: -1 }
+        sortOptions = { joinedAt: -1 };
         break;
       case "old_users":
-        sortOptions = { joinedAt: 1 }
+        sortOptions = { joinedAt: 1 };
         break;
       case "top_contributors":
-        sortOptions = { reputation: -1 }
+        sortOptions = { reputation: -1 };
         break;
-    
+
       default:
         break;
     }
@@ -124,7 +133,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
     const users = await User.find(query)
       .sort(sortOptions)
       .skip(skipAmount)
-      .limit(pageSize)
+      .limit(pageSize);
 
     const totalUsers = await User.countDocuments(query);
     const isNext = totalUsers > skipAmount + users.length;
@@ -144,27 +153,29 @@ export async function toggleSaveQuestion(params: ToggleSaveQuestionParams) {
 
     const user = await User.findById(userId);
 
-    if(!user) {
-      throw new Error('User not found');
+    if (!user) {
+      throw new Error("User not found");
     }
 
     const isQuestionSaved = user.saved.includes(questionId);
 
-    if(isQuestionSaved) {
+    if (isQuestionSaved) {
       // remove question from saved
-      await User.findByIdAndUpdate(userId, 
-        { $pull: { saved: questionId }},
+      await User.findByIdAndUpdate(
+        userId,
+        { $pull: { saved: questionId } },
         { new: true }
-      )
+      );
     } else {
       // add question to saved
-      await User.findByIdAndUpdate(userId, 
-        { $addToSet: { saved: questionId }},
+      await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { saved: questionId } },
         { new: true }
-      )
+      );
     }
 
-    revalidatePath(path)
+    revalidatePath(path);
   } catch (error) {
     console.log(error);
     throw error;
@@ -178,57 +189,62 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     const { clerkId, searchQuery, filter, page = 1, pageSize = 20 } = params;
 
     const skipAmount = (page - 1) * pageSize;
-    
+
     const query: FilterQuery<typeof Question> = searchQuery
-      ? { title: { $regex: new RegExp(searchQuery, 'i') } }
-      : { };
+      ? { title: { $regex: new RegExp(searchQuery, "i") } }
+      : {};
 
-      let sortOptions = {};
+    let sortOptions = {};
 
-      switch (filter) {
-        case "most_recent":
-          sortOptions = { createdAt: -1 }
-          break;
-        case "oldest":
-          sortOptions = { createdAt: 1 }
-          break;
-        case "most_voted":
-          sortOptions = { upvotes: -1 }
-          break;
-        case "most_viewed":
-          sortOptions = { views: -1 }
-          break;
-        case "most_answered":
-          sortOptions = { answers: -1 }
-          break;
-      
-        default:
-          break;
-      }
+    switch (filter) {
+      case "most_recent":
+        sortOptions = { createdAt: -1 };
+        break;
+      case "oldest":
+        sortOptions = { createdAt: 1 };
+        break;
+      case "most_voted":
+        sortOptions = { upvotes: -1 };
+        break;
+      case "most_viewed":
+        sortOptions = { views: -1 };
+        break;
+      case "most_answered":
+        sortOptions = { answers: -1 };
+        break;
 
-    const user = await User
-    .findOne({ clerkId })
-    .populate({
-      path: 'saved',
+      default:
+        break;
+    }
+
+    const user = await User.findOne({ clerkId });
+
+    // Find total saved questions without populating
+    const allUserQuestions = user.saved.length;
+
+    // Populate saved questions
+    await user.populate({
+      path: "saved",
       match: query,
       options: {
         sort: sortOptions,
         skip: skipAmount,
-        limit: pageSize + 1,
+        limit: pageSize,
       },
       populate: [
-        { path: 'tags', model: Tag, select: "_id name" },
-        { path: 'author', model: User, select: '_id clerkId name picture'}
-      ]
-    })
+        { path: "tags", model: Tag, select: "_id name" },
+        { path: "author", model: User, select: "_id clerkId name picture" },
+      ],
+    });
 
-    const isNext = user.saved.length > pageSize;
-    
-    if(!user) {
-      throw new Error('User not found');
+    if (!user) {
+      throw new Error("User not found");
     }
 
     const savedQuestions = user.saved;
+    // find total saved questions after populating (current page questions)
+    const currentSavedQuestions = savedQuestions.length;
+    const isNext = allUserQuestions > skipAmount + currentSavedQuestions;
 
     return { questions: savedQuestions, isNext };
   } catch (error) {
@@ -245,50 +261,71 @@ export async function getUserInfo(params: GetUserByIdParams) {
 
     const user = await User.findOne({ clerkId: userId });
 
-    if(!user) {
-      throw new Error('User not found');
+    if (!user) {
+      throw new Error("User not found");
     }
 
-    const totalQuestions = await Question.countDocuments({ author: user._id })
+    const totalQuestions = await Question.countDocuments({ author: user._id });
     const totalAnswers = await Answer.countDocuments({ author: user._id });
 
     const [questionUpvotes] = await Question.aggregate([
-      { $match: { author: user._id }},
-      { $project: {
-        _id: 0, upvotes: { $size: "$upvotes" }
-      }},
-      { $group: {
-        _id: null,
-        totalUpvotes: { $sum: "$upvotes" }
-      }}
-    ])
+      { $match: { author: user._id } },
+      {
+        $project: {
+          _id: 0,
+          upvotes: { $size: "$upvotes" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalUpvotes: { $sum: "$upvotes" },
+        },
+      },
+    ]);
 
     const [answerUpvotes] = await Answer.aggregate([
-      { $match: { author: user._id }},
-      { $project: {
-        _id: 0, upvotes: { $size: "$upvotes" }
-      }},
-      { $group: {
-        _id: null,
-        totalUpvotes: { $sum: "$upvotes" }
-      }}
-    ])
+      { $match: { author: user._id } },
+      {
+        $project: {
+          _id: 0,
+          upvotes: { $size: "$upvotes" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalUpvotes: { $sum: "$upvotes" },
+        },
+      },
+    ]);
 
     const [questionViews] = await Answer.aggregate([
-      { $match: { author: user._id }},
-      { $group: {
-        _id: null,
-        totalViews: { $sum: "$views" }
-      }}
-    ])
+      { $match: { author: user._id } },
+      {
+        $group: {
+          _id: null,
+          totalViews: { $sum: "$views" },
+        },
+      },
+    ]);
 
     const criteria = [
-      { type: 'QUESTION_COUNT' as BadgeCriteriaType, count: totalQuestions },
-      { type: 'ANSWER_COUNT' as BadgeCriteriaType, count: totalAnswers },
-      { type: 'QUESTION_UPVOTES' as BadgeCriteriaType, count: questionUpvotes?.totalUpvotes || 0 },
-      { type: 'ANSWER_UPVOTES' as BadgeCriteriaType, count: answerUpvotes?.totalUpvotes || 0 },
-      { type: 'TOTAL_VIEWS' as BadgeCriteriaType, count: questionViews?.totalViews || 0 },
-    ]
+      { type: "QUESTION_COUNT" as BadgeCriteriaType, count: totalQuestions },
+      { type: "ANSWER_COUNT" as BadgeCriteriaType, count: totalAnswers },
+      {
+        type: "QUESTION_UPVOTES" as BadgeCriteriaType,
+        count: questionUpvotes?.totalUpvotes || 0,
+      },
+      {
+        type: "ANSWER_UPVOTES" as BadgeCriteriaType,
+        count: answerUpvotes?.totalUpvotes || 0,
+      },
+      {
+        type: "TOTAL_VIEWS" as BadgeCriteriaType,
+        count: questionViews?.totalViews || 0,
+      },
+    ];
 
     const badgeCounts = assignBadges({ criteria });
 
@@ -298,7 +335,7 @@ export async function getUserInfo(params: GetUserByIdParams) {
       totalAnswers,
       badgeCounts,
       reputation: user.reputation,
-    }    
+    };
   } catch (error) {
     console.log(error);
     throw error;
@@ -313,16 +350,16 @@ export async function getUserQuestions(params: GetUserStatsParams) {
 
     const skipAmount = (page - 1) * pageSize;
 
-    const totalQuestions = await Question.countDocuments({ author: userId})
+    const totalQuestions = await Question.countDocuments({ author: userId });
 
     const userQuestions = await Question.find({ author: userId })
-      .sort({ createdAt: -1, views: -1, upvotes: -1, })
+      .sort({ createdAt: -1, views: -1, upvotes: -1 })
       .skip(skipAmount)
       .limit(pageSize)
-      .populate('tags', '_id name')
-      .populate('author', '_id clerkId name picture')
+      .populate("tags", "_id name")
+      .populate("author", "_id clerkId name picture");
 
-      const isNextQuestions = totalQuestions > skipAmount + userQuestions.length;
+    const isNextQuestions = totalQuestions > skipAmount + userQuestions.length;
 
     return { totalQuestions, questions: userQuestions, isNextQuestions };
   } catch (error) {
@@ -339,17 +376,17 @@ export async function getUserAnswers(params: GetUserStatsParams) {
 
     const skipAmount = (page - 1) * pageSize;
 
-    const totalAnswers = await Answer.countDocuments({ author: userId})
+    const totalAnswers = await Answer.countDocuments({ author: userId });
 
     const userAnswers = await Answer.find({ author: userId })
       .sort({ upvotes: -1 })
       .skip(skipAmount)
       .limit(pageSize)
-      .populate('question', '_id title')
-      .populate('author', '_id clerkId name picture')
+      .populate("question", "_id title")
+      .populate("author", "_id clerkId name picture");
 
-      const isNextAnswer = totalAnswers > skipAmount + userAnswers.length;
-      
+    const isNextAnswer = totalAnswers > skipAmount + userAnswers.length;
+
     return { totalAnswers, answers: userAnswers, isNextAnswer };
   } catch (error) {
     console.log(error);
