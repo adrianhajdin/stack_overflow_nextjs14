@@ -60,7 +60,7 @@ const MobileNav = () => {
           className="invert-colors sm:hidden"
         />
       </SheetTrigger>
-      <SheetContent side="left" className="background-light900_dark200 border-none">
+      <SheetContent side="left" className="background-light900_dark200 border-none overflow-y-auto no-scrollbar">
       <Link href="/" className="flex items-center gap-1">
         <Image
           src="/assets/images/site-logo.svg"
