@@ -1,0 +1,8 @@
+{
+    "protectionBypass": [
+      {
+        "source": "/api/webhook",
+        "methods": ["POST"]
+      }
+    ]
+  }
