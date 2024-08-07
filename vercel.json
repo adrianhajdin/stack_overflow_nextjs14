@@ -3,6 +3,10 @@
       {
         "source": "/api/webhook",
         "methods": ["POST"]
-      }
+      },
+      {
+        "source": "/api/success",
+        "methods": ["POST"]
+      }      
     ]
   }
