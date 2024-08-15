@@ -200,7 +200,7 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
     })
 
     await User.findByIdAndUpdate(question.author, { 
-      $inc: { reputation: hasdownVoted ? -10 : 10 }
+      $inc: { reputation: hasdownVoted ? 10 : -10 }
     })
 
     revalidatePath(path);
