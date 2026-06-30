@@ -136,7 +136,7 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
     let updateQuery = {};
 
     if(hasdownVoted) {
-      updateQuery = { $pull: { downvote: userId }}
+      updateQuery = { $pull: { downvotes: userId }}
     } else if (hasupVoted) {
       updateQuery = { 
         $pull: { upvotes: userId },
