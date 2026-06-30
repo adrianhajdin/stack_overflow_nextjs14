@@ -42,11 +42,15 @@ const Theme = () => {
               key={item.value}
               className='flex items-center gap-4 px-2.5 py-2 dark:focus:bg-dark-400'
               onClick={() => {
-                setMode(item.value);
-                if (item.value !== "system") {
-                  localStorage.theme = item.value;
-                } else {
+                if (item.value === "system") {
                   localStorage.removeItem("theme");
+                  const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)"
+                  ).matches;
+                  setMode(prefersDark ? "dark" : "light");
+                } else {
+                  localStorage.theme = item.value;
+                  setMode(item.value);
                 }
               }}
             >

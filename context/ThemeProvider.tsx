@@ -12,24 +12,27 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState('');
 
-  const handleThemeChange = () => {
-    if(
-      localStorage.theme === 'dark' || 
-      (!("theme" in localStorage) && 
-      window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      setMode('dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      setMode('light');
-      document.documentElement.classList.remove('dark');
-    }
-  }
-
+  // Resolve the saved preference (or the OS setting) to a concrete theme,
+  // once, on mount. `mode` is always kept as 'light' | 'dark' so consumers
+  // can rely on it directly.
   useEffect(() => {
-    handleThemeChange();
+    const prefersDark =
+      localStorage.theme === 'dark' ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    setMode(prefersDark ? 'dark' : 'light');
+  }, [])
+
+  // Apply the theme to the DOM whenever it changes. This effect only reads
+  // `mode` and writes a class — it never calls setMode, so it cannot
+  // retrigger itself (the "Maximum update depth exceeded" loop in #32).
+  useEffect(() => {
+    if (!mode) return;
+
+    document.documentElement.classList.toggle('dark', mode === 'dark');
   }, [mode])
-  
+
   return (
     <ThemeContext.Provider value={{ mode, setMode }}>
       {children}
